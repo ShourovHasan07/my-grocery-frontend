@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+import Script from "next/script";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -24,10 +28,78 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+
+
+      <head>
+
+       
+  <meta charSet="utf-8" />
+  <title>Nest - Multipurpose eCommerce HTML Template </title>
+  <meta httpEquiv="x-ua-compatible" content="ie=edge" />
+  <meta name="description" content="" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta property="og:title" content="" />
+  <meta property="og:type" content="" />
+  <meta property="og:url" content="" />
+  <meta property="og:image" content="" />
+  {/* Favicon */}
+  <link
+    rel="shortcut icon"
+    type="image/x-icon"
+    href="assets/imgs/theme/favicon.svg"
+  />
+  {/* Template CSS */}
+  <link rel="stylesheet" href="assets/css/plugins/animate.min.css" />
+  <link rel="stylesheet" href="assets/css/main.css?v=6.1" />
+
+
+
+
+      </head>
+
+      
+
+
+
       <body
+
+
+
+
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+
+        < Header />
         {children}
+
+
+        <Footer />
+
+      
+    <Script src="assets/js/vendor/modernizr-3.6.0.min.js"></Script>
+    <Script src="assets/js/vendor/jquery-3.7.1.min.js"></Script>
+    <Script src="assets/js/vendor/jquery-migrate-3.3.0.min.js"></Script>
+    <Script src="assets/js/vendor/bootstrap.bundle.min.js"></Script>
+    <Script src="assets/js/plugins/slick.js"></Script>
+    <Script src="assets/js/plugins/jquery.syotimer.min.js"></Script>
+    <Script src="assets/js/plugins/waypoints.js"></Script>
+    <Script src="assets/js/plugins/wow.js"></Script>
+    <Script src="assets/js/plugins/perfect-scrollbar.js"></Script>
+    <Script src="assets/js/plugins/magnific-popup.js"></Script>
+    <Script src="assets/js/plugins/select2.min.js"></Script>
+    <Script src="assets/js/plugins/counterup.js"></Script>
+    <Script src="assets/js/plugins/jquery.countdown.min.js"></Script>
+    <Script src="assets/js/plugins/images-loaded.js"></Script>
+    <Script src="assets/js/plugins/isotope.js"></Script>
+    <Script src="assets/js/plugins/scrollup.js"></Script>
+    <Script src="assets/js/plugins/jquery.vticker-min.js"></Script>
+    <Script src="assets/js/plugins/jquery.theia.sticky.js"></Script>
+    <Script src="assets/js/plugins/jquery.elevatezoom.js"></Script>
+   
+    <Script src="assets/js/main.js?v=6.1"></Script>
+    <Script src="assets/js/shop.js?v=6.1"></Script>
+
+
       </body>
     </html>
   );
