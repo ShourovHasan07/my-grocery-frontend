@@ -1,6 +1,128 @@
-import React from 'react'
+
+"use client";
+
+
+
+import React, { useState } from 'react'
+import { useEffect } from "react";
+
+
+
+import { useRouter } from "next/navigation";
 
 const cheackOut = () => {
+
+  const router = useRouter();
+
+  
+ const [cart, setCart] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [placingOrder, setPlacingOrder] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<string>(""); // store selected payment
+
+
+
+
+
+  
+// 🔹 Check if user logged in
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login?redirect=/check-out");
+    }
+  }, [router]);
+
+
+
+
+  // 🛒 Load cart (USER / MERGED CART)
+  useEffect(() => {
+    const fetchCart = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const res = await fetch("http://localhost:4000/cart", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+        setCart(data);
+      } catch (error) {
+        console.error("Cart load failed", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCart();
+  }, []);
+
+  if (loading) {
+    return <p>Loading checkout...</p>;
+  }
+
+
+   const handlePlaceOrder = async () => {
+    if (!paymentMethod) {
+      alert("Please select a payment method");
+      return;
+    }
+
+    setPlacingOrder(true);
+    try {
+      const token = localStorage.getItem("token");
+
+      // 1️⃣ Call Checkout API
+      const checkoutRes = await fetch("http://localhost:4000/orders/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      });
+      const checkoutData = await checkoutRes.json();
+      const orderId = checkoutData.orderId;
+      const amount = checkoutData.amount;
+
+      if (!orderId || !amount) throw new Error("Failed to create order");
+
+      // 2️⃣ Only SSLCommerz selected
+      if (paymentMethod === "sslcommerz") {
+        const paymentRes = await fetch("http://localhost:4000/payments/init", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ orderId, amount }),
+        });
+        const paymentData = await paymentRes.json();
+
+        if (!paymentData.paymentUrl) throw new Error("Failed to initialize payment");
+
+        // 3️⃣ Redirect to SSLCommerz
+        window.location.href = paymentData.paymentUrl;
+      } else {
+        alert("Selected payment method is not implemented yet.");
+      }
+    } catch (error) {
+      console.error("Payment failed:", error);
+      alert("Payment initiation failed. Please try again.");
+    } finally {
+      setPlacingOrder(false);
+    }
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
   return (
     <div>
 
@@ -358,101 +480,65 @@ const cheackOut = () => {
           </form>
         </div>
       </div>
+
+
+      {/* order start  */}
+
+
       <div className="col-lg-5">
         <div className="border p-40 cart-totals ml-30 mb-50">
-          <div className="d-flex align-items-end justify-content-between mb-30">
-            <h4>Your Order</h4>
-            <h6 className="text-muted">Subtotal</h6>
-          </div>
-          <div className="divider-2 mb-30" />
-          <div className="table-responsive order_table checkout">
-            <table className="table no-border">
-              <tbody>
-                <tr>
-                  <td className="image product-thumbnail">
-                    <img src="assets/imgs/shop/product-1-1.jpg" alt="#" />
-                  </td>
-                  <td>
-                    <h6 className="w-160 mb-5">
-                      <a href="shop-product-full.html" className="text-heading">
-                        Yidarton Women Summer Blue
-                      </a>
-                    </h6>
-                    <div className="product-rate-cover">
-                      <div className="product-rate d-inline-block">
-                        <div
-                          className="product-rating"
-                          style={{ width: "90%" }}
-                        ></div>
-                      </div>
-                      <span className="font-small ml-5 text-muted"> (4.0)</span>
-                    </div>
-                  </td>
-                  <td>
-                    <h6 className="text-muted pl-20 pr-20">x 1</h6>
-                  </td>
-                  <td>
-                    <h4 className="text-brand">$13.3</h4>
-                  </td>
-                </tr>
-                <tr>
-                  <td className="image product-thumbnail">
-                    <img src="assets/imgs/shop/product-2-1.jpg" alt="#" />
-                  </td>
-                  <td>
-                    <h6 className="w-160 mb-5">
-                      <a href="shop-product-full.html" className="text-heading">
-                        Seeds of Change Organic Quinoa
-                      </a>
-                    </h6>
-                    <div className="product-rate-cover">
-                      <div className="product-rate d-inline-block">
-                        <div
-                          className="product-rating"
-                          style={{ width: "90%" }}
-                        ></div>
-                      </div>
-                      <span className="font-small ml-5 text-muted"> (4.0)</span>
-                    </div>
-                  </td>
-                  <td>
-                    <h6 className="text-muted pl-20 pr-20">x 1</h6>
-                  </td>
-                  <td>
-                    <h4 className="text-brand">$15.0</h4>
-                  </td>
-                </tr>
-                <tr>
-                  <td className="image product-thumbnail">
-                    <img src="assets/imgs/shop/product-3-1.jpg" alt="#" />
-                  </td>
-                  <td>
-                    <h6 className="w-160 mb-5">
-                      <a href="shop-product-full.html" className="text-heading">
-                        Angie’s Boomchickapop Sweet{" "}
-                      </a>
-                    </h6>
-                    <div className="product-rate-cover">
-                      <div className="product-rate d-inline-block">
-                        <div
-                          className="product-rating"
-                          style={{ width: "90%" }}
-                        ></div>
-                      </div>
-                      <span className="font-small ml-5 text-muted"> (4.0)</span>
-                    </div>
-                  </td>
-                  <td>
-                    <h6 className="text-muted pl-20 pr-20">x 1</h6>
-                  </td>
-                  <td>
-                    <h4 className="text-brand">$17.2</h4>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+                <div className="d-flex align-items-end justify-content-between mb-30">
+                  <h4>Your Order</h4>
+                  <h4 className="text-heading">Total Price:</h4>
+    <h3 className="text-brand">
+      $ {cart?.totalPrice || 0}
+    </h3>
+                </div>
+
+                <div className="divider-2 mb-30" />
+
+                <div className="table-responsive order_table checkout">
+                  <table className="table no-border">
+                    <tbody>
+                      {cart?.items?.map((item: any) => (
+                        <tr key={item.id}>
+                          <td className="image product-thumbnail">
+                            <img src={item.image} alt="#" />
+                          </td>
+
+                          <td>
+                            <h6 className="w-160 mb-5">
+                              <a className="text-heading">
+                                {item.name}
+                              </a>
+                            </h6>
+                          </td>
+
+                          <td>
+                            <h6 className="text-muted pl-20 pr-20">
+                              x {item.quantity}
+                            </h6>
+                          </td>
+
+                          <td>
+                            <h4 className="text-brand">
+                              ${item.subtotal}
+                            </h4>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+
+
+
+        {/* payment part  start */}
+
+
+
         <div className="payment ml-30">
           <h4 className="mb-30">Payment</h4>
           <div className="payment_option">
@@ -498,10 +584,12 @@ const cheackOut = () => {
               <input
                 className="form-check-input"
                 required=""
-                type="radio"
-                name="payment_option"
-                id="exampleRadios5"
+                 type="radio"
+                  name="payment_option"
+                  id="exampleRadios5"
                 defaultChecked=""
+                value="sslcommerz"
+                  onChange={() => setPaymentMethod("sslcommerz")}
               />
               <label
                 className="form-check-label"
@@ -510,7 +598,7 @@ const cheackOut = () => {
                 data-target="#paypal"
                 aria-controls="paypal"
               >
-                Online Getway
+                Online Getway SSLCommerz
               </label>
             </div>
           </div>
@@ -532,10 +620,13 @@ const cheackOut = () => {
             />
             <img src="assets/imgs/theme/icons/payment-zapper.svg" alt="" />
           </div>
-          <a href="#" className="btn btn-fill-out btn-block mt-30">
-            Place an Order
-            <i className="fi-rs-sign-out ml-15" />
-          </a>
+           <button
+                  onClick={handlePlaceOrder}
+                  disabled={placingOrder}
+                  className="btn btn-fill-out btn-block mt-30"
+                >
+                  {placingOrder ? "Processing..." : "Place an Order"}
+                </button>
         </div>
       </div>
     </div>

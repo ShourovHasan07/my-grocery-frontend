@@ -5,6 +5,7 @@ import "./globals.css";
 import Script from "next/script";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { AuthProvider } from "@/context/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -70,7 +71,9 @@ export default function RootLayout({
       >
 
         < Header />
-        {children}
+        <AuthProvider>
+      {children}
+    </AuthProvider>
 
 
         <Footer />
